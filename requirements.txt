@@ -14,7 +14,9 @@ pinecone==6.0.0
 
 # --- Database ---
 SQLAlchemy==2.0.35
-psycopg2-binary==2.9.9           # PostgreSQL driver
+psycopg2-binary==2.9.9           # PostgreSQL driver (used by SQLAlchemy)
+psycopg[binary]>=3.1              # PostgreSQL driver v3 (used by langgraph-checkpoint-postgres)
+langgraph-checkpoint-postgres>=2.0   # persistent LangGraph checkpointer (app/db/checkpointer.py)
 
 # --- Policy document parsing ---
 python-docx==1.1.2

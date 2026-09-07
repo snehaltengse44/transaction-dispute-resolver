@@ -1,0 +1,35 @@
+query,expected_section_keyword,category
+refund eligibility fraud amount,Refund Eligibility,refund
+transaction matches bank records exactly,Refund Eligibility,refund
+complaint raised within calendar days,Refund Eligibility,refund
+policy clause confirms refund eligible transaction type,Refund Eligibility,refund
+what makes a dispute eligible for refund,Refund Eligibility,refund
+requirements to qualify for a refund,Refund Eligibility,refund
+verify transaction id amount date account,Refund Eligibility,refund
+supporting policy clause for eligibility,Refund Eligibility,refund
+transaction amount exceeds large value threshold,Fraud Indicator,fraud
+receiving account subject to multiple disputes,Fraud Indicator,fraud
+sender raised many disputes in short period,Fraud Indicator,fraud
+newly opened account before disputed transaction,Fraud Indicator,fraud
+mandatory human review fraud flag,Fraud Indicator,fraud
+what amount triggers fraud review,Fraud Indicator,fraud
+suspicious account age threshold,Fraud Indicator,fraud
+signs of a fraudulent transaction pattern,Fraud Indicator,fraud
+receiver has not responded within days,Receiver Response,receiver_response
+voluntary return of funds timeline,Receiver Response,receiver_response
+what happens if receiver does not reply,Receiver Response,receiver_response
+notification given to receiver before action,Receiver Response,receiver_response
+resolved and closed after funds returned,Receiver Response,receiver_response
+days given to person b to respond,Receiver Response,receiver_response
+account frozen deduction bank action,Escalation,escalation
+final notice before account seizure,Escalation,escalation
+bank deducts amount and refunds sender directly,Escalation,escalation
+what happens after escalation to bank action,Escalation,escalation
+regulatory action against non responsive receiver,Escalation,escalation
+audit log for escalation decisions,Escalation,escalation
+officer approval required before action,Human-in-the-Loop,human_approval
+who can approve reject or request more info,Human-in-the-Loop,human_approval
+mandatory officer sign-off for flagged cases,Human-in-the-Loop,human_approval
+automated action bypass checkpoint,Human-in-the-Loop,human_approval
+decision logging retention period,Data & Audit,audit
+policy clause citation requirement for decisions,Data & Audit,audit

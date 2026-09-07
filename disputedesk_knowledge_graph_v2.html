@@ -1,0 +1,77 @@
+<h2 class="sr-only">Updated knowledge graph of the DisputeDesk project reflecting Postgres, Pinecone, Gemini embeddings, and the persistent checkpointer</h2>
+<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:11px; color:var(--text-secondary)">
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#378ADD;margin-right:5px"></span>Person</span>
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#888780;margin-right:5px"></span>Interface / script</span>
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#7F77DD;margin-right:5px"></span>Agent node</span>
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#1D9E75;margin-right:5px"></span>Data store</span>
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#BA7517;margin-right:5px"></span>Document</span>
+  <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#C74A4A;margin-right:5px"></span>External AI service</span>
+</div>
+<div id="net" style="width:100%; height:520px; border:0.5px solid var(--border); border-radius:var(--radius);"></div>
+<p style="font-size:12px; color:var(--text-muted); margin:8px 0 0;">Drag nodes to rearrange, scroll to zoom.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/standalone/umd/vis-network.min.js"></script>
+<script>
+const person = {color:{background:'#378ADD',border:'#185FA5'}, font:{color:'#fff'}};
+const ui = {color:{background:'#888780',border:'#5F5E5A'}, font:{color:'#fff'}};
+const agent = {color:{background:'#7F77DD',border:'#534AB7'}, font:{color:'#fff'}};
+const store = {color:{background:'#1D9E75',border:'#0F6E56'}, font:{color:'#fff'}};
+const doc = {color:{background:'#BA7517',border:'#854F0B'}, font:{color:'#fff'}};
+const ai = {color:{background:'#C74A4A',border:'#8F2F2F'}, font:{color:'#fff'}};
+
+const nodes = new vis.DataSet([
+  {id:1, label:'Sender\n(Snehal)', ...person},
+  {id:2, label:'Receiver\n(Person B)', ...person},
+  {id:3, label:'Streamlit UI', ...ui},
+  {id:4, label:'Receipt image', ...ui},
+  {id:5, label:'OCR agent', ...agent},
+  {id:6, label:'Verification\nagent', ...agent},
+  {id:7, label:'Policy agent', ...agent},
+  {id:8, label:'Decision agent', ...agent},
+  {id:9, label:'Human review\n(HITL)', ...agent},
+  {id:10, label:'Notify receiver\nagent', ...agent},
+  {id:11, label:'Monitor response\n(waits 2 days)', ...agent},
+  {id:12, label:'Escalation\nagent', ...agent},
+  {id:13, label:'Seizure agent', ...agent},
+  {id:14, label:'check_pending_\ncases.py', ...ui},
+  {id:15, label:'PostgreSQL\n(Neon)', ...store},
+  {id:16, label:'Pinecone\nindex', ...store},
+  {id:17, label:'LangGraph\ncheckpointer', ...store},
+  {id:18, label:'Fraud & refund\npolicy.docx', ...doc},
+  {id:19, label:'Gemini\nembeddings', ...ai},
+  {id:20, label:'LLM\n(OpenAI / Groq)', ...ai},
+]);
+
+const edges = new vis.DataSet([
+  {from:1, to:3, label:'submits complaint'},
+  {from:3, to:4, label:'uploads'},
+  {from:4, to:5, label:'read by'},
+  {from:5, to:20, label:'field extraction', dashes:true},
+  {from:5, to:6, label:'extracted fields'},
+  {from:6, to:15, label:'checks'},
+  {from:6, to:7},
+  {from:7, to:16, label:'queries'},
+  {from:18, to:19, label:'embedded via'},
+  {from:19, to:16, label:'stored in'},
+  {from:7, to:8},
+  {from:8, to:9, label:'if fraud flag'},
+  {from:8, to:10, label:'if eligible'},
+  {from:10, to:2, label:'notice'},
+  {from:10, to:11},
+  {from:11, to:17, label:'pauses / resumes via'},
+  {from:11, to:12, label:'if unpaid\n(window elapsed)'},
+  {from:12, to:2, label:'final notice'},
+  {from:12, to:13},
+  {from:13, to:15, label:'debit / credit /\nmove record'},
+  {from:13, to:1, label:'refund credited'},
+  {from:14, to:17, label:'reads deadline'},
+  {from:14, to:11, label:'resumes when\nwindow elapsed'},
+]);
+
+const container = document.getElementById('net');
+const network = new vis.Network(container, {nodes, edges}, {
+  nodes: {shape:'box', shapeProperties:{borderRadius:8}, margin:10, font:{size:12, face:'inherit', multi:false}, borderWidth:1},
+  edges: {arrows:'to', color:{color:'#9c9a92', highlight:'#378ADD'}, font:{size:9, color:'#9c9a92', strokeWidth:0}, smooth:{type:'dynamic'}},
+  physics: {stabilization:true, barnesHut:{gravitationalConstant:-3200, springLength:120}},
+  interaction: {hover:true}
+});
+</script>

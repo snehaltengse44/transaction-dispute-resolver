@@ -1,0 +1,3 @@
+receipt_path,customer_name,expected_transaction_id,expected_amount,expected_receiver_name,expected_verified,expected_decision
+data/sample_receipts/receipt_pranay.png,Snehal,T2609011639482603899525,300,Pranay,True,notify_receiver
+data/sample_receipts/receipt_sonali.png,Snehal,T2608290014231160709688,40,Sonali,True,notify_receiver

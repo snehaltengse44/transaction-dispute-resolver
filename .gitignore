@@ -1,0 +1,27 @@
+# Environment / secrets — NEVER commit these
+.env
+*.env
+!.env.example
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Local databases / checkpoints (regenerated via seed scripts)
+app/db/dev.db
+app/db/test_bank.db
+app/db/checkpoints.db
+
+# Eval cache (regenerates automatically, and may contain cached API outputs)
+data/sample_dataset/eval_cache.json
+
+# Uploaded receipts from Streamlit runs (user data, not source)
+data/sample_receipts/uploaded/
+
+# OS / editor cruft
+.DS_Store
+.vscode/
+*.swp

@@ -6,9 +6,8 @@ pytesseract==0.3.13
 Pillow==10.4.0
 
 # --- LLM ---
-openai==1.51.0                    # used for OCR field extraction (or Groq via OpenAI-compatible client)
-httpx<0.28                        # pinned: newer httpx breaks openai==1.51.0's client init
-google-genai==2.22.0               # Gemini embeddings for policy search (free tier)
+openai>=1.55                      # newer version fixes the httpx-conflict bug from 1.51.0
+google-genai>=2.22.0               # Gemini embeddings for policy search (free tier)
 
 # --- Vector DB ---
 pinecone==6.0.0
@@ -25,8 +24,8 @@ sendgrid==6.11.0
 twilio==9.3.4
 
 # --- Validation / config ---
-pydantic==2.9.2
-pydantic-settings==2.5.2
+pydantic>=2.12.5
+pydantic-settings>=2.7
 python-dotenv==1.0.1
 
 # --- Frontend ---

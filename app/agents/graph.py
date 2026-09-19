@@ -1,8 +1,6 @@
 """
 LangGraph StateGraph definition for DisputeDesk.
 
-Wires together every node in agents/ according to the workflow diagram:
-
   complaint -> ocr -> verification -> policy -> decision
                                                     |
                     +-------------------------------+-------------------------------+
@@ -10,10 +8,10 @@ Wires together every node in agents/ according to the workflow diagram:
               needs_human_review              notify_receiver                    reject
                     |                               |                               |
               human_review (HITL)            monitor_response                    END
-                    |                          /            \\
-                   END                   resolved        escalate
-                                             |                |
-                                            END        escalation_node -> seizure_node -> END
+              /        |        \\               /            \\
+         approved  rejected  more_info      resolved        escalate
+             |         |         |             |                |
+      notify_receiver END       END           END        escalation -> seizure -> END
 """
 
 import logging
@@ -37,7 +35,6 @@ logger = logging.getLogger(__name__)
 
 
 def route_after_decision(state: DisputeCaseState) -> str:
-    """Conditional edge out of the decision_agent node."""
     decision = state.get("decision")
     mapping = {
         "reject": "end_rejected",
@@ -49,8 +46,27 @@ def route_after_decision(state: DisputeCaseState) -> str:
     return mapping.get(decision, "end_rejected")
 
 
+def route_after_human_review(state: DisputeCaseState) -> str:
+    """
+    Conditional edge out of human_review — this is the piece that was
+    missing before: officer_decision was being recorded but never
+    actually routed anywhere, so approving a case did nothing beyond
+    marking a status field.
+
+    approved   -> notify_receiver (give the receiver a chance to
+                  voluntarily return the funds, same as the normal
+                  eligible path)
+    rejected   -> END (customer already notified inside human_review_node)
+    more_info  -> END (customer already notified; re-submission isn't
+                  wired yet — see Known Limitations)
+    """
+    officer_decision = state.get("officer_decision")
+    if officer_decision == "approved":
+        return "notify_receiver"
+    return "end"
+
+
 def route_after_monitor(state: DisputeCaseState) -> str:
-    """Conditional edge out of monitor_response_node."""
     if state.get("receiver_refunded"):
         return "resolved"
     return "escalation"
@@ -59,7 +75,6 @@ def route_after_monitor(state: DisputeCaseState) -> str:
 def build_graph():
     graph = StateGraph(DisputeCaseState)
 
-    # Nodes
     graph.add_node("ocr", ocr_agent)
     graph.add_node("verification", verification_agent)
     graph.add_node("policy", policy_agent)
@@ -70,13 +85,11 @@ def build_graph():
     graph.add_node("escalation", escalation_node)
     graph.add_node("seizure", seizure_node)
 
-    # Linear preprocessing pipeline
     graph.set_entry_point("ocr")
     graph.add_edge("ocr", "verification")
     graph.add_edge("verification", "policy")
     graph.add_edge("policy", "decision")
 
-    # Branch after decision
     graph.add_conditional_edges(
         "decision",
         route_after_decision,
@@ -89,7 +102,15 @@ def build_graph():
         },
     )
 
-    graph.add_edge("human_review", END)
+    graph.add_conditional_edges(
+        "human_review",
+        route_after_human_review,
+        {
+            "notify_receiver": "notify_receiver",
+            "end": END,
+        },
+    )
+
     graph.add_edge("notify_receiver", "monitor_response")
 
     graph.add_conditional_edges(
@@ -104,15 +125,10 @@ def build_graph():
     graph.add_edge("escalation", "seizure")
     graph.add_edge("seizure", END)
 
-    # Persistent checkpointer (Postgres, or SQLite for local dev) —
-    # required so a case paused mid-wait (e.g. monitor_response waiting
-    # out the 2-day response window) survives the app restarting before
-    # it's resumed. See app/db/checkpointer.py.
     from app.db.checkpointer import build_checkpointer
     checkpointer = build_checkpointer()
 
     return graph.compile(checkpointer=checkpointer)
 
 
-# Compiled graph, imported by main.py and invoked per case.
 dispute_graph = build_graph()

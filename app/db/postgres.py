@@ -52,6 +52,24 @@ class ExistingCustomer(Base):
     case_id = Column(String)
 
 
+class Case(Base):
+    """
+    Lightweight case tracker — separate from LangGraph's own
+    checkpointed state. Exists so the officer dashboard can list
+    "which cases need my review" without having to introspect the
+    checkpointer's internals for every thread. Written to by the
+    Streamlit customer intake and the officer dashboard.
+    """
+    __tablename__ = "cases"
+
+    case_id = Column(String, primary_key=True)
+    customer_name = Column(String, nullable=False)
+    receipt_image_path = Column(String)
+    status = Column(String, default="open")  # open | pending_officer_review | awaiting_receiver | resolved | rejected | escalated | closed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class Transaction(Base):
     __tablename__ = "transactions"
 

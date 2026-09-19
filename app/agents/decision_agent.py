@@ -1,10 +1,9 @@
 """
 5. Decision Engine
 
-Combines the verification and policy results into a single decision.
-This node is intentionally rule-first (deterministic, auditable) with
-the LLM used only to draft a human-readable rationale — the *decision*
-itself should never depend on an LLM's whim in a financial workflow.
+Combines verification and policy results into a routing decision.
+Rule-first and deterministic — the LLM is not involved in the
+decision itself, only in earlier extraction/retrieval steps.
 """
 
 import logging
@@ -15,13 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 def decision_agent(state: DisputeCaseState) -> dict:
-    """
-    LangGraph node. Returns the routing decision consumed by the
-    conditional edges in graph.py.
-    """
     verified = state.get("verified", False)
     refund_eligible = state.get("refund_eligible", False)
     fraud_flag = state.get("fraud_flag", False)
+    window_status = state.get("time_window_status", "expired")
 
     if not verified:
         decision = "reject"
@@ -34,9 +30,26 @@ def decision_agent(state: DisputeCaseState) -> dict:
         decision = "needs_human_review"
         reason = "Transaction flagged by fraud heuristics; requires officer review."
 
+    elif window_status == "manual_review_window":
+        # Policy Section 5: 15-30 days requires manual officer approval
+        # regardless of other checks — this is a policy requirement,
+        # not a fraud signal, so it's tagged separately for the
+        # customer-facing message.
+        decision = "needs_human_review"
+        reason = (
+            "Verified, but outside the standard refund window and within "
+            "the manual-review window (15-30 days) — policy requires "
+            "officer approval regardless of other checks."
+        )
+
+    elif window_status == "expired":
+        decision = "reject"
+        reason = (
+            "Verified, but beyond the 30-day manual-review window. "
+            "Not eligible for automated or manual refund under current policy."
+        )
+
     elif refund_eligible:
-        # Route to the receiver first — give Person B a chance to return
-        # funds voluntarily before any account action is taken.
         decision = "notify_receiver"
         reason = "Verified and within policy window; requesting voluntary return from receiver."
 
@@ -44,12 +57,10 @@ def decision_agent(state: DisputeCaseState) -> dict:
         decision = "escalate"
         reason = (
             "Verified but not eligible under current policy "
-            f"(within_window={state.get('within_time_window')}); escalating for manual bank action."
+            f"(refund_eligible=False, window_status={window_status}); escalating for manual bank action."
         )
 
-    logger.info(
-        "Decision for case %s: %s (%s)", state.get("case_id"), decision, reason
-    )
+    logger.info("Decision for case %s: %s (%s)", state.get("case_id"), decision, reason)
 
     return {
         "decision": decision,

@@ -33,6 +33,7 @@ class DisputeCaseState(TypedDict, total=False):
 
     # --- 4. Policy & Rule Check ---
     within_time_window: Optional[bool]
+    time_window_status: Optional[Literal["within_window", "manual_review_window", "expired"]]
     refund_eligible: Optional[bool]
     fraud_flag: Optional[bool]
     policy_citations: list[str]

@@ -70,21 +70,7 @@ Reject  Human Review    Notify Receiver
 - **Autonomous fund recovery** — unresolved cases automatically freeze the receiver's account, transfer funds back to the sender, and log a full audit trail.
 - **Fallback-safe design** — every LLM/embedding call degrades gracefully to a regex/keyword fallback when API keys aren't configured, so the pipeline keeps running for local development without live credentials.
 
-## 6. Evaluation Results
 
-Tested with a tiered strategy — exhaustive/synthetic tests where possible (free, at scale), real LLM calls kept small and deliberate (cached to avoid repeat API cost):
-
-| Metric | Result | Sample |
-|---|---|---|
-| Decision-rule coverage | 100% | n=8 (exhaustive — full input space) |
-| Financial reconciliation (zero-sum invariant) | 100% pass | n=50 runs |
-| Verification accuracy | 100% | n=30 (synthetic) |
-| Policy Retrieval Hit Rate@3 | 100% | n=33 (golden query set) |
-| Policy Retrieval MRR | 0.91 | n=33 |
-| OCR field extraction accuracy | 100% | n=2 (real receipts — small sample, actively expanding) |
-| Avg. end-to-end latency | ~12.6s | real LLM + embedding path |
-
-Full evaluation harness: [`app/evals/run_evaluation.py`](app/evals/run_evaluation.py)
 
 ## 7. Project Structure
 
